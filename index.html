@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnitIt - Gauge Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>KnitIt</h1>
+            <p class="tagline">Align your gauge with any pattern</p>
+        </header>
+
+        <section class="calculator">
+            <div class="input-group">
+                <h2>Your Gauge</h2>
+                <div class="field">
+                    <label for="personal-gauge">Your stitches per 10cm</label>
+                    <input type="number" id="personal-gauge" placeholder="e.g., 22" step="0.5" min="1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <h2>Pattern Gauge</h2>
+                <div class="field">
+                    <label for="pattern-gauge">Pattern's stitches per 10cm</label>
+                    <input type="number" id="pattern-gauge" placeholder="e.g., 20" step="0.5" min="1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <h2>Target Measurement</h2>
+                <div class="field">
+                    <label for="desired-measurement">Desired finished measurement (cm)</label>
+                    <input type="number" id="desired-measurement" placeholder="e.g., 100" step="0.5" min="1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <h2>Pattern Sizes</h2>
+                <p class="hint">Add the sizes available in your pattern</p>
+                <div id="size-list">
+                    <!-- Dynamic size rows will be added here -->
+                </div>
+                <button type="button" id="add-size" class="btn-secondary">+ Add Size</button>
+            </div>
+
+            <button type="button" id="calculate" class="btn-primary">Calculate Best Size</button>
+        </section>
+
+        <section id="result" class="result hidden">
+            <h2>Recommendation</h2>
+            <div id="result-content"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
