@@ -437,6 +437,19 @@ input::placeholder {
     background: var(--color-primary);
 }
 
+.dot.pickup.multi {
+    width: auto;
+    min-width: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .dot-legend {
     display: flex;
     gap: 16px;

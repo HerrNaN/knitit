@@ -110,12 +110,9 @@ function generateEvenDistribution(totalStitches, totalRows) {
     
     for (let row = 0; row < totalRows; row++) {
         const expectedStitches = Math.round((row + 1) * totalStitches / totalRows);
-        if (expectedStitches > stitchesPlaced) {
-            result.push(true);
-            stitchesPlaced++;
-        } else {
-            result.push(false);
-        }
+        const stitchesThisRow = expectedStitches - stitchesPlaced;
+        result.push(stitchesThisRow);
+        stitchesPlaced = expectedStitches;
     }
     
     return result;
@@ -125,23 +122,23 @@ function describeDistribution(totalStitches, totalRows) {
     const distribution = generateEvenDistribution(totalStitches, totalRows);
     
     const runs = [];
-    let currentType = distribution[0];
-    let currentCount = 1;
+    let currentCount = distribution[0];
+    let runLength = 1;
     
     for (let i = 1; i < distribution.length; i++) {
-        if (distribution[i] === currentType) {
-            currentCount++;
+        if (distribution[i] === currentCount) {
+            runLength++;
         } else {
-            runs.push({ pickup: currentType, count: currentCount });
-            currentType = distribution[i];
-            currentCount = 1;
+            runs.push({ stitchesPerRow: currentCount, rows: runLength });
+            currentCount = distribution[i];
+            runLength = 1;
         }
     }
-    runs.push({ pickup: currentType, count: currentCount });
+    runs.push({ stitchesPerRow: currentCount, rows: runLength });
     
     const runCounts = {};
     for (const run of runs) {
-        const key = `${run.pickup ? 'pickup' : 'skip'}-${run.count}`;
+        const key = `${run.stitchesPerRow}-${run.rows}`;
         runCounts[key] = (runCounts[key] || 0) + 1;
     }
     
@@ -417,11 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const totalStitchesToPickup = Math.round(totalRows * adjusted.ratio);
         
-        if (totalStitchesToPickup >= totalRows) {
-            showPickupError('The calculated pick-up count exceeds your row count. This would mean picking up more than one stitch per row, which isn\'t possible for vertical edges.');
-            return;
-        }
-        
         if (totalStitchesToPickup < 1) {
             showPickupError('The calculated pick-up count is too low. Please check your gauge values.');
             return;
@@ -481,29 +473,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const sequences = [];
         let i = 0;
         while (i < pattern.length) {
-            const isPickup = pattern[i];
-            let count = 0;
-            while (i < pattern.length && pattern[i] === isPickup) {
-                count++;
+            const stitchCount = pattern[i];
+            let rows = 0;
+            while (i < pattern.length && pattern[i] === stitchCount) {
+                rows++;
                 i++;
             }
-            sequences.push({ pickup: isPickup, count });
+            sequences.push({ stitches: stitchCount, rows });
         }
         
         let description;
         if (sequences.length === 1) {
-            description = sequences[0].pickup 
-                ? `Pick up ${sequences[0].count} in a row` 
-                : `Skip ${sequences[0].count} in a row`;
-        } else if (sequences.length === 2) {
-            const parts = sequences.map(s => 
-                s.pickup ? `pick up ${s.count}` : `skip ${s.count}`
-            );
-            description = parts.join(', then ');
+            const s = sequences[0];
+            if (s.stitches === 0) {
+                description = `Skip ${s.rows} row${s.rows !== 1 ? 's' : ''}`;
+            } else if (s.stitches === 1) {
+                description = `Pick up 1 from each of ${s.rows} row${s.rows !== 1 ? 's' : ''}`;
+            } else {
+                description = `Pick up ${s.stitches} from each of ${s.rows} row${s.rows !== 1 ? 's' : ''}`;
+            }
         } else {
-            const parts = sequences.map(s => 
-                s.pickup ? `pick up ${s.count}` : `skip ${s.count}`
-            );
+            const parts = sequences.map(s => {
+                if (s.stitches === 0) {
+                    return `skip ${s.rows}`;
+                } else if (s.rows === 1) {
+                    return `pick up ${s.stitches}`;
+                } else {
+                    return `pick up ${s.stitches} × ${s.rows} rows`;
+                }
+            });
             description = parts.join(' → ');
         }
         
@@ -518,8 +516,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function generateDotVisualization(distribution) {
-        return distribution.map(isPickup => 
-            `<span class="dot${isPickup ? ' pickup' : ''}"></span>`
-        ).join('');
+        return distribution.map(count => {
+            if (count === 0) {
+                return '<span class="dot"></span>';
+            } else if (count === 1) {
+                return '<span class="dot pickup"></span>';
+            } else {
+                return `<span class="dot pickup multi">${count}</span>`;
+            }
+        }).join('');
     }
 });
