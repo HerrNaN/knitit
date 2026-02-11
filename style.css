@@ -298,3 +298,160 @@ input::placeholder {
         padding: 32px;
     }
 }
+
+/* Gauge Grid Layout */
+.gauge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.gauge-column h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+}
+
+@media (max-width: 500px) {
+    .gauge-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Pick-up Stitches Section */
+.pickup-section {
+    margin-top: 20px;
+}
+
+.disabled-message {
+    background: var(--color-background);
+    border: 1.5px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+}
+
+.pickup-inputs.disabled {
+    display: none;
+}
+
+.ratio-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ratio-input span {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.ratio-input input {
+    width: 70px;
+    text-align: center;
+}
+
+/* Pick-up Result Visualization */
+.pickup-summary {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+}
+
+.adjusted-ratio {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin-bottom: 16px;
+}
+
+.distribution-pattern {
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--color-background);
+    border-radius: var(--radius);
+}
+
+.distribution-pattern h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    margin-bottom: 12px;
+}
+
+.pattern-text {
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    line-height: 1.6;
+}
+
+.repeat-info {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin-top: 8px;
+}
+
+.pattern-note {
+    margin-top: 16px;
+    color: var(--color-text-light);
+}
+
+/* Dot Pattern Visualization */
+.dot-visualization {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.dot-visualization h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    margin-bottom: 12px;
+}
+
+.dot-pattern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-border);
+    transition: background-color 0.2s;
+}
+
+.dot.pickup {
+    background: var(--color-primary);
+}
+
+.dot-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+}
+
+.dot-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dot-legend .dot {
+    width: 10px;
+    height: 10px;
+}
