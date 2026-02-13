@@ -169,6 +169,53 @@ function findClosestSize(targetMeasurement, sizes) {
     return closest;
 }
 
+/**
+ * Calculate border stitches when picking up along an edge with different gauge.
+ * Along stitches: main stitches → border stitches (same width)
+ * Along rows: main rows → border stitches (same height)
+ */
+function calculateGaugeCombination(mainGaugeH, mainGaugeV, borderGaugeH, borderGaugeV, mainCount, pickupAlong) {
+    if (!mainCount) return null;
+    
+    if (pickupAlong === 'along-stitches') {
+        if (!mainGaugeH || !borderGaugeH) return null;
+        const width = (mainCount / mainGaugeH) * 10;
+        const borderStitches = Math.round((width * borderGaugeH) / 10);
+        const ratio = borderStitches / mainCount;
+        const simplified = simplifyRatio(borderStitches, mainCount);
+        
+        return {
+            type: 'along-stitches',
+            mainCount,
+            borderStitches,
+            measurement: Math.round(width * 10) / 10,
+            ratio: Math.round(ratio * 100) / 100,
+            simplified,
+            mainUnit: 'stitches',
+            increase: borderStitches > mainCount
+        };
+    } else if (pickupAlong === 'along-rows') {
+        if (!mainGaugeV || !borderGaugeH) return null;
+        const height = (mainCount / mainGaugeV) * 10;
+        const borderStitches = Math.round((height * borderGaugeH) / 10);
+        const ratio = borderStitches / mainCount;
+        const simplified = simplifyRatio(borderStitches, mainCount);
+        
+        return {
+            type: 'along-rows',
+            mainCount,
+            borderStitches,
+            measurement: Math.round(height * 10) / 10,
+            ratio: Math.round(ratio * 100) / 100,
+            simplified,
+            mainUnit: 'rows',
+            increase: borderStitches > mainCount
+        };
+    }
+    
+    return null;
+}
+
 function analyzeAllSizes(personalGauge, patternGauge, desiredMeasurement, sizes) {
     const targetPatternMeasurement = calculateTargetPatternMeasurement(
         personalGauge, patternGauge, desiredMeasurement
@@ -232,6 +279,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const pickupResultSection = document.getElementById('pickup-result');
     const pickupResultContent = document.getElementById('pickup-result-content');
     
+    const combineSection = document.getElementById('combine-section');
+    const mainGaugeHInput = document.getElementById('main-gauge-h');
+    const mainGaugeVInput = document.getElementById('main-gauge-v');
+    const borderGaugeHInput = document.getElementById('border-gauge-h');
+    const borderGaugeVInput = document.getElementById('border-gauge-v');
+    const mainStitchesInput = document.getElementById('main-stitches');
+    const calculateCombineBtn = document.getElementById('calculate-combine');
+    const combineResultSection = document.getElementById('combine-result');
+    const combineResultContent = document.getElementById('combine-result-content');
+    
     addSizeRow('S', '');
     addSizeRow('M', '');
     addSizeRow('L', '');
@@ -239,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addSizeBtn.addEventListener('click', () => addSizeRow('', ''));
     calculateBtn.addEventListener('click', calculate);
     calculatePickupBtn.addEventListener('click', calculatePickup);
+    calculateCombineBtn.addEventListener('click', calculateCombine);
     
     const gaugeInputs = [personalGaugeHInput, personalGaugeVInput, patternGaugeHInput, patternGaugeVInput];
     gaugeInputs.forEach(input => {
@@ -252,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter') {
                 if (pickupInputs.contains(input)) {
                     calculatePickup();
+                } else if (combineSection.contains(input)) {
+                    calculateCombine();
                 } else {
                     calculate();
                 }
@@ -525,5 +585,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span class="dot pickup multi">${count}</span>`;
             }
         }).join('');
+    }
+    
+    function calculateCombine() {
+        const mainGaugeH = parseFloat(mainGaugeHInput.value);
+        const mainGaugeV = parseFloat(mainGaugeVInput.value);
+        const borderGaugeH = parseFloat(borderGaugeHInput.value);
+        const borderGaugeV = parseFloat(borderGaugeVInput.value);
+        const mainCount = parseInt(mainStitchesInput.value);
+        const pickupAlong = document.querySelector('input[name="join-direction"]:checked').value;
+        
+        if (!mainCount) {
+            showCombineError('Please enter the count on your main fabric edge.');
+            return;
+        }
+        
+        if (pickupAlong === 'along-stitches' && (!mainGaugeH || !borderGaugeH)) {
+            showCombineError('Please enter stitches per 10cm for both fabrics.');
+            return;
+        }
+        
+        if (pickupAlong === 'along-rows' && (!mainGaugeV || !borderGaugeH)) {
+            showCombineError('Please enter main fabric rows/10cm and border stitches/10cm.');
+            return;
+        }
+        
+        const result = calculateGaugeCombination(mainGaugeH, mainGaugeV, borderGaugeH, borderGaugeV, mainCount, pickupAlong);
+        
+        if (!result) {
+            showCombineError('Could not calculate. Please check your inputs.');
+            return;
+        }
+        
+        displayCombineResult(result);
+    }
+    
+    function showCombineError(message) {
+        combineResultSection.classList.remove('hidden', 'warning');
+        combineResultSection.classList.add('warning');
+        combineResultContent.innerHTML = `<p class="explanation">${message}</p>`;
+    }
+    
+    function displayCombineResult(result) {
+        combineResultSection.classList.remove('hidden', 'warning');
+        
+        const edgeType = result.type === 'along-stitches' ? 'cast-on/bind-off' : 'selvedge';
+        const summaryText = `Pick up ${result.borderStitches} stitches`;
+        
+        let detailText;
+        if (result.type === 'along-stitches') {
+            detailText = `Your main fabric has ${result.mainCount} stitches (${result.measurement}cm wide).`;
+        } else {
+            detailText = `Your main fabric has ${result.mainCount} rows (${result.measurement}cm tall).`;
+        }
+        
+        if (result.borderStitches !== result.mainCount) {
+            const diff = Math.abs(result.borderStitches - result.mainCount);
+            const moreOrFewer = result.borderStitches > result.mainCount ? 'more' : 'fewer';
+            detailText += ` With the border gauge, you need <strong>${diff} ${moreOrFewer}</strong> stitches to match the same measurement.`;
+        }
+        
+        const ratioText = `<br><br>Ratio: <strong>${result.simplified.a} border stitches per ${result.simplified.b} main ${result.mainUnit}</strong>`;
+        
+        combineResultContent.innerHTML = `
+            <div class="combine-summary">${summaryText}</div>
+            <p class="explanation">${detailText}${ratioText}</p>
+            <div class="distribution-pattern">
+                <h4>Along ${edgeType} edge:</h4>
+                <p class="pattern-text">Pick up <strong>${result.borderStitches}</strong> stitches over ${result.mainCount} ${result.mainUnit}</p>
+            </div>
+        `;
     }
 });

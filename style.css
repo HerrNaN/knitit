@@ -468,3 +468,54 @@ input::placeholder {
     width: 10px;
     height: 10px;
 }
+
+/* Combine Gauges Section */
+.combine-section {
+    margin-top: 20px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 12px;
+    background: var(--color-background);
+    border-radius: var(--radius);
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.radio-option:hover {
+    background: rgba(139, 90, 107, 0.05);
+}
+
+.radio-option input[type="radio"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--color-primary);
+}
+
+.radio-option input[type="radio"]:checked + span {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.radio-option span {
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.combine-summary {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+}
