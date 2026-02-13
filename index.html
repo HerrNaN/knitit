@@ -13,7 +13,13 @@
             <p class="tagline">Align your gauge with any pattern</p>
         </header>
 
-        <section class="calculator">
+        <nav class="tabs">
+            <button class="tab active" data-tab="size">Size Calculator</button>
+            <button class="tab" data-tab="pickup">Pick Up Stitches</button>
+            <button class="tab" data-tab="combine">Combine Gauges</button>
+        </nav>
+
+        <section class="calculator tab-content active" id="tab-size">
             <div class="input-group">
                 <h2>Gauge</h2>
                 <p class="hint">Enter your gauge and the pattern's gauge</p>
@@ -61,45 +67,73 @@
             </div>
 
             <button type="button" id="calculate" class="btn-primary">Calculate Best Size</button>
+
+            <section id="result" class="result hidden">
+                <h2>Recommendation</h2>
+                <div id="result-content"></div>
+            </section>
         </section>
 
-        <section class="calculator pickup-section" id="pickup-section">
+        <section class="calculator tab-content" id="tab-pickup">
+            <div class="input-group">
+                <h2>Gauge</h2>
+                <p class="hint">Enter your gauge and the pattern's gauge</p>
+                <div class="gauge-grid">
+                    <div class="gauge-column">
+                        <h3>Your Gauge</h3>
+                        <div class="field">
+                            <label for="pickup-personal-gauge-h">Stitches per 10cm</label>
+                            <input type="number" id="pickup-personal-gauge-h" placeholder="e.g., 22" step="0.5" min="1">
+                        </div>
+                        <div class="field">
+                            <label for="pickup-personal-gauge-v">Rows per 10cm</label>
+                            <input type="number" id="pickup-personal-gauge-v" placeholder="e.g., 28" step="0.5" min="1">
+                        </div>
+                    </div>
+                    <div class="gauge-column">
+                        <h3>Pattern Gauge</h3>
+                        <div class="field">
+                            <label for="pickup-pattern-gauge-h">Stitches per 10cm</label>
+                            <input type="number" id="pickup-pattern-gauge-h" placeholder="e.g., 20" step="0.5" min="1">
+                        </div>
+                        <div class="field">
+                            <label for="pickup-pattern-gauge-v">Rows per 10cm</label>
+                            <input type="number" id="pickup-pattern-gauge-v" placeholder="e.g., 26" step="0.5" min="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="input-group">
                 <h2>Pick Up Stitches</h2>
                 <p class="hint">Calculate how to pick up stitches along a vertical edge</p>
                 
-                <div id="pickup-disabled-message" class="disabled-message">
-                    Enter all gauge values above to enable this calculator
+                <div class="field">
+                    <label>Pattern's pick-up instruction</label>
+                    <div class="ratio-input">
+                        <span>Pick up</span>
+                        <input type="number" id="pickup-stitches" placeholder="3" min="1" step="1">
+                        <span>stitches per</span>
+                        <input type="number" id="pickup-rows" placeholder="4" min="1" step="1">
+                        <span>rows</span>
+                    </div>
                 </div>
                 
-                <div id="pickup-inputs" class="pickup-inputs">
-                    <div class="field">
-                        <label>Pattern's pick-up instruction</label>
-                        <div class="ratio-input">
-                            <span>Pick up</span>
-                            <input type="number" id="pickup-stitches" placeholder="3" min="1" step="1">
-                            <span>stitches per</span>
-                            <input type="number" id="pickup-rows" placeholder="4" min="1" step="1">
-                            <span>rows</span>
-                        </div>
-                    </div>
-                    
-                    <div class="field">
-                        <label for="total-rows">Total rows along your edge</label>
-                        <input type="number" id="total-rows" placeholder="e.g., 120" min="1" step="1">
-                    </div>
-                    
-                    <button type="button" id="calculate-pickup" class="btn-primary">Calculate Pick-Up</button>
+                <div class="field">
+                    <label for="total-rows">Total rows along your edge</label>
+                    <input type="number" id="total-rows" placeholder="e.g., 120" min="1" step="1">
                 </div>
+                
+                <button type="button" id="calculate-pickup" class="btn-primary">Calculate Pick-Up</button>
             </div>
+
+            <section id="pickup-result" class="result hidden">
+                <h2>Pick-Up Result</h2>
+                <div id="pickup-result-content"></div>
+            </section>
         </section>
 
-        <section id="pickup-result" class="result hidden">
-            <h2>Pick-Up Result</h2>
-            <div id="pickup-result-content"></div>
-        </section>
-
-        <section class="calculator combine-section" id="combine-section">
+        <section class="calculator tab-content" id="tab-combine">
             <div class="input-group">
                 <h2>Combine Gauges</h2>
                 <p class="hint">Join pieces knitted at different gauges (e.g., main fabric with borders)</p>
@@ -150,16 +184,11 @@
                 
                 <button type="button" id="calculate-combine" class="btn-primary">Calculate Join</button>
             </div>
-        </section>
 
-        <section id="combine-result" class="result hidden">
-            <h2>Combine Result</h2>
-            <div id="combine-result-content"></div>
-        </section>
-
-        <section id="result" class="result hidden">
-            <h2>Recommendation</h2>
-            <div id="result-content"></div>
+            <section id="combine-result" class="result hidden">
+                <h2>Combine Result</h2>
+                <div id="combine-result-content"></div>
+            </section>
         </section>
     </main>
 

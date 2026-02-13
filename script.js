@@ -258,6 +258,18 @@ function analyzeAllSizes(personalGauge, patternGauge, desiredMeasurement, sizes)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+        });
+    });
+    
     const personalGaugeHInput = document.getElementById('personal-gauge-h');
     const personalGaugeVInput = document.getElementById('personal-gauge-v');
     const patternGaugeHInput = document.getElementById('pattern-gauge-h');
@@ -269,9 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultSection = document.getElementById('result');
     const resultContent = document.getElementById('result-content');
     
-    const pickupSection = document.getElementById('pickup-section');
-    const pickupDisabledMessage = document.getElementById('pickup-disabled-message');
-    const pickupInputs = document.getElementById('pickup-inputs');
+    const pickupPersonalGaugeHInput = document.getElementById('pickup-personal-gauge-h');
+    const pickupPersonalGaugeVInput = document.getElementById('pickup-personal-gauge-v');
+    const pickupPatternGaugeHInput = document.getElementById('pickup-pattern-gauge-h');
+    const pickupPatternGaugeVInput = document.getElementById('pickup-pattern-gauge-v');
     const pickupStitchesInput = document.getElementById('pickup-stitches');
     const pickupRowsInput = document.getElementById('pickup-rows');
     const totalRowsInput = document.getElementById('total-rows');
@@ -279,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pickupResultSection = document.getElementById('pickup-result');
     const pickupResultContent = document.getElementById('pickup-result-content');
     
-    const combineSection = document.getElementById('combine-section');
     const mainGaugeHInput = document.getElementById('main-gauge-h');
     const mainGaugeVInput = document.getElementById('main-gauge-v');
     const borderGaugeHInput = document.getElementById('border-gauge-h');
@@ -288,6 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateCombineBtn = document.getElementById('calculate-combine');
     const combineResultSection = document.getElementById('combine-result');
     const combineResultContent = document.getElementById('combine-result-content');
+    
+    const tabSize = document.getElementById('tab-size');
+    const tabPickup = document.getElementById('tab-pickup');
+    const tabCombine = document.getElementById('tab-combine');
     
     addSizeRow('S', '');
     addSizeRow('M', '');
@@ -298,19 +314,12 @@ document.addEventListener('DOMContentLoaded', () => {
     calculatePickupBtn.addEventListener('click', calculatePickup);
     calculateCombineBtn.addEventListener('click', calculateCombine);
     
-    const gaugeInputs = [personalGaugeHInput, personalGaugeVInput, patternGaugeHInput, patternGaugeVInput];
-    gaugeInputs.forEach(input => {
-        input.addEventListener('input', updatePickupSectionState);
-    });
-    
-    updatePickupSectionState();
-    
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                if (pickupInputs.contains(input)) {
+                if (tabPickup.contains(input)) {
                     calculatePickup();
-                } else if (combineSection.contains(input)) {
+                } else if (tabCombine.contains(input)) {
                     calculateCombine();
                 } else {
                     calculate();
@@ -429,27 +438,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
     
-    function updatePickupSectionState() {
-        const hasAllGauges = personalGaugeHInput.value && personalGaugeVInput.value && 
-                            patternGaugeHInput.value && patternGaugeVInput.value;
-        
-        if (hasAllGauges) {
-            pickupDisabledMessage.style.display = 'none';
-            pickupInputs.style.display = 'block';
-        } else {
-            pickupDisabledMessage.style.display = 'block';
-            pickupInputs.style.display = 'none';
-        }
-    }
-    
     function calculatePickup() {
-        const personalGaugeH = parseFloat(personalGaugeHInput.value);
-        const personalGaugeV = parseFloat(personalGaugeVInput.value);
-        const patternGaugeH = parseFloat(patternGaugeHInput.value);
-        const patternGaugeV = parseFloat(patternGaugeVInput.value);
+        const personalGaugeH = parseFloat(pickupPersonalGaugeHInput.value);
+        const personalGaugeV = parseFloat(pickupPersonalGaugeVInput.value);
+        const patternGaugeH = parseFloat(pickupPatternGaugeHInput.value);
+        const patternGaugeV = parseFloat(pickupPatternGaugeVInput.value);
         const patternStitches = parseInt(pickupStitchesInput.value);
         const patternRows = parseInt(pickupRowsInput.value);
         const totalRows = parseInt(totalRowsInput.value);
+        
+        if (!personalGaugeH || !personalGaugeV || !patternGaugeH || !patternGaugeV) {
+            showPickupError('Please enter all gauge values.');
+            return;
+        }
         
         if (!patternStitches || !patternRows) {
             showPickupError('Please enter the pattern\'s pick-up instruction (stitches per rows).');
