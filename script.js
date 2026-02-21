@@ -32,6 +32,7 @@ function simplifyRatio(a, b) {
     return { a: Math.round(a / divisor), b: Math.round(b / divisor) };
 }
 
+let _swatchIdCounter = 0;
 function renderSwatchSVG(gaugeH, gaugeV, sizeCm, color = '#8B5A6B', opacity = 1) {
     const pixelsPerCm = 30;
     const width = sizeCm * pixelsPerCm;
@@ -41,15 +42,13 @@ function renderSwatchSVG(gaugeH, gaugeV, sizeCm, color = '#8B5A6B', opacity = 1)
     const rowHeight = (sizeCm / gaugeV) * pixelsPerCm;
     
     let stitches = '';
-    const cols = Math.ceil(gaugeH);
-    const rows = Math.ceil(gaugeV);
+    const cols = Math.ceil(gaugeH) + 1;
+    const rows = Math.ceil(gaugeV) + 1;
     
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
             const x = col * stitchWidth;
             const y = row * rowHeight;
-
-            if (x + stitchWidth > width) continue;
             
             const vPath = `
                 M ${x + stitchWidth * 0.15} ${y + rowHeight * 0.2}
@@ -61,9 +60,54 @@ function renderSwatchSVG(gaugeH, gaugeV, sizeCm, color = '#8B5A6B', opacity = 1)
         }
     }
     
+    const clipId = `swatch-clip-${_swatchIdCounter++}`;
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <clipPath id="${clipId}">
+                <rect width="${width}" height="${height}"/>
+            </clipPath>
+        </defs>
         <rect width="${width}" height="${height}" fill="white" opacity="0"/>
-        ${stitches}
+        <g clip-path="url(#${clipId})">
+            ${stitches}
+        </g>
+    </svg>`;
+}
+
+function renderSwatchByCount(gaugeH, gaugeV, cols, rows, color = '#8B5A6B', opacity = 1) {
+    const pixelsPerCm = 30;
+    const stitchWidth = (10 / gaugeH) * pixelsPerCm;
+    const rowHeight = (10 / gaugeV) * pixelsPerCm;
+    const width = cols * stitchWidth;
+    const height = rows * rowHeight;
+    
+    let stitches = '';
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            const x = col * stitchWidth;
+            const y = row * rowHeight;
+            
+            const vPath = `
+                M ${x + stitchWidth * 0.15} ${y + rowHeight * 0.2}
+                Q ${x + stitchWidth * 0.5} ${y + rowHeight * 0.9} ${x + stitchWidth * 0.5} ${y + rowHeight * 0.85}
+                Q ${x + stitchWidth * 0.5} ${y + rowHeight * 0.9} ${x + stitchWidth * 0.85} ${y + rowHeight * 0.2}
+            `;
+            
+            stitches += `<path d="${vPath}" stroke="${color}" stroke-width="1.5" fill="none" opacity="${opacity}"/>`;
+        }
+    }
+    
+    const clipId = `swatch-clip-${_swatchIdCounter++}`;
+    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <clipPath id="${clipId}">
+                <rect width="${width}" height="${height}"/>
+            </clipPath>
+        </defs>
+        <rect width="${width}" height="${height}" fill="white" opacity="0"/>
+        <g clip-path="url(#${clipId})">
+            ${stitches}
+        </g>
     </svg>`;
 }
 
@@ -71,8 +115,12 @@ function renderSwatchComparison(gauge1H, gauge1V, gauge2H, gauge2V, mode = 'side
     const sizeCm = 5;
     
     if (mode === 'overlay') {
-        const svg1 = renderSwatchSVG(gauge1H, gauge1V, sizeCm, '#8B5A6B', 0.8);
-        const svg2 = renderSwatchSVG(gauge2H, gauge2V, sizeCm, '#4A7C59', 0.8);
+        // Use a fixed stitch count so both swatches show the same number of stitches,
+        // revealing the physical size difference between the two gauges.
+        const refCols = Math.round(gauge1H * sizeCm / 10);
+        const refRows = Math.round(gauge1V * sizeCm / 10);
+        const svg1 = renderSwatchByCount(gauge1H, gauge1V, refCols, refRows, '#8B5A6B', 0.8);
+        const svg2 = renderSwatchByCount(gauge2H, gauge2V, refCols, refRows, '#4A7C59', 0.8);
         
         return `
             <div class="swatch-overlay">
@@ -80,9 +128,10 @@ function renderSwatchComparison(gauge1H, gauge1V, gauge2H, gauge2V, mode = 'side
                 <div class="swatch-layer">${svg2}</div>
             </div>
             <div class="swatch-legend">
-                <span><span class="legend-color" style="background: #8B5A6B"></span> Main fabric</span>
-                <span><span class="legend-color" style="background: #4A7C59"></span> Border</span>
+                <span><span class="legend-color" style="background: #8B5A6B"></span> Main fabric (${gauge1H}\u00d7${gauge1V})</span>
+                <span><span class="legend-color" style="background: #4A7C59"></span> Border (${gauge2H}\u00d7${gauge2V})</span>
             </div>
+            <div class="swatch-info">${refCols} st \u00d7 ${refRows} rows</div>
         `;
     } else {
         const svg1 = renderSwatchSVG(gauge1H, gauge1V, sizeCm, '#8B5A6B', 1);

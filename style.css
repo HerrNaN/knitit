@@ -625,8 +625,7 @@ input::placeholder {
 
 /* Overlay swatch layout */
 .swatch-overlay {
-    position: relative;
-    display: inline-block;
+    display: inline-grid;
     background: white;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -634,13 +633,10 @@ input::placeholder {
 }
 
 .swatch-layer {
-    display: block;
-}
-
-.swatch-layer:not(:first-child) {
-    position: absolute;
-    top: 8px;
-    left: 8px;
+    grid-row: 1;
+    grid-column: 1;
+    align-self: start;
+    justify-self: start;
 }
 
 .swatch-legend {
