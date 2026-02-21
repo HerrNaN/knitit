@@ -45,14 +45,11 @@ function renderSwatchSVG(gaugeH, gaugeV, sizeCm, color = '#8B5A6B', opacity = 1)
     const rows = Math.ceil(gaugeV);
     
     for (let row = 0; row < rows; row++) {
-        const isOddRow = row % 2 === 1;
-        const offsetX = isOddRow ? stitchWidth * 0.5 : 0;
-        
         for (let col = 0; col < cols; col++) {
-            const x = col * stitchWidth + offsetX;
+            const x = col * stitchWidth;
             const y = row * rowHeight;
-            
-            if (x + stitchWidth > width + stitchWidth * 0.5) continue;
+
+            if (x + stitchWidth > width) continue;
             
             const vPath = `
                 M ${x + stitchWidth * 0.15} ${y + rowHeight * 0.2}
