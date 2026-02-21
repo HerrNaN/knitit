@@ -23,7 +23,7 @@
             <div class="input-group">
                 <h2>Gauge</h2>
                 <p class="hint">Enter your gauge and the pattern's gauge</p>
-                <div class="gauge-grid">
+                <div class="gauge-grid gauge-grid-with-swatch">
                     <div class="gauge-column">
                         <h3>Your Gauge</h3>
                         <div class="field">
@@ -34,6 +34,7 @@
                             <label for="personal-gauge-v">Rows per 10cm</label>
                             <input type="number" id="personal-gauge-v" placeholder="e.g., 28" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="size-personal-swatch"></div>
                     </div>
                     <div class="gauge-column">
                         <h3>Pattern Gauge</h3>
@@ -45,6 +46,7 @@
                             <label for="pattern-gauge-v">Rows per 10cm</label>
                             <input type="number" id="pattern-gauge-v" placeholder="e.g., 26" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="size-pattern-swatch"></div>
                     </div>
                 </div>
             </div>
@@ -78,7 +80,7 @@
             <div class="input-group">
                 <h2>Gauge</h2>
                 <p class="hint">Enter your gauge and the pattern's gauge</p>
-                <div class="gauge-grid">
+                <div class="gauge-grid gauge-grid-with-swatch">
                     <div class="gauge-column">
                         <h3>Your Gauge</h3>
                         <div class="field">
@@ -89,6 +91,7 @@
                             <label for="pickup-personal-gauge-v">Rows per 10cm</label>
                             <input type="number" id="pickup-personal-gauge-v" placeholder="e.g., 28" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="pickup-personal-swatch"></div>
                     </div>
                     <div class="gauge-column">
                         <h3>Pattern Gauge</h3>
@@ -100,6 +103,7 @@
                             <label for="pickup-pattern-gauge-v">Rows per 10cm</label>
                             <input type="number" id="pickup-pattern-gauge-v" placeholder="e.g., 26" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="pickup-pattern-swatch"></div>
                     </div>
                 </div>
             </div>
@@ -138,7 +142,12 @@
                 <h2>Combine Gauges</h2>
                 <p class="hint">Join pieces knitted at different gauges (e.g., main fabric with borders)</p>
                 
-                <div class="gauge-grid">
+                <div class="view-toggle" id="swatch-view-toggle">
+                    <button type="button" data-view="side-by-side" class="active">Side by Side</button>
+                    <button type="button" data-view="overlay">Overlay</button>
+                </div>
+                
+                <div class="gauge-grid gauge-grid-with-swatch">
                     <div class="gauge-column">
                         <h3>Main Fabric Gauge</h3>
                         <div class="field">
@@ -149,6 +158,7 @@
                             <label for="main-gauge-v">Rows per 10cm</label>
                             <input type="number" id="main-gauge-v" placeholder="e.g., 22" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="main-swatch-preview"></div>
                     </div>
                     <div class="gauge-column">
                         <h3>Border/Trim Gauge</h3>
@@ -160,8 +170,11 @@
                             <label for="border-gauge-v">Rows per 10cm</label>
                             <input type="number" id="border-gauge-v" placeholder="e.g., 32" step="0.5" min="1">
                         </div>
+                        <div class="swatch-preview" id="border-swatch-preview"></div>
                     </div>
                 </div>
+                
+                <div class="swatch-overlay-container" id="swatch-overlay-container"></div>
                 
                 <div class="field" style="margin-top: 16px;">
                     <label for="main-stitches">Main fabric edge count</label>

@@ -32,6 +32,82 @@ function simplifyRatio(a, b) {
     return { a: Math.round(a / divisor), b: Math.round(b / divisor) };
 }
 
+function renderSwatchSVG(gaugeH, gaugeV, sizeCm, color = '#8B5A6B', opacity = 1) {
+    const pixelsPerCm = 30;
+    const width = sizeCm * pixelsPerCm;
+    const height = sizeCm * pixelsPerCm;
+    
+    const stitchWidth = (sizeCm / gaugeH) * pixelsPerCm;
+    const rowHeight = (sizeCm / gaugeV) * pixelsPerCm;
+    
+    let stitches = '';
+    const cols = Math.ceil(gaugeH);
+    const rows = Math.ceil(gaugeV);
+    
+    for (let row = 0; row < rows; row++) {
+        const isOddRow = row % 2 === 1;
+        const offsetX = isOddRow ? stitchWidth * 0.5 : 0;
+        
+        for (let col = 0; col < cols; col++) {
+            const x = col * stitchWidth + offsetX;
+            const y = row * rowHeight;
+            
+            if (x + stitchWidth > width + stitchWidth * 0.5) continue;
+            
+            const vPath = `
+                M ${x + stitchWidth * 0.15} ${y + rowHeight * 0.2}
+                Q ${x + stitchWidth * 0.5} ${y + rowHeight * 0.9} ${x + stitchWidth * 0.5} ${y + rowHeight * 0.85}
+                Q ${x + stitchWidth * 0.5} ${y + rowHeight * 0.9} ${x + stitchWidth * 0.85} ${y + rowHeight * 0.2}
+            `;
+            
+            stitches += `<path d="${vPath}" stroke="${color}" stroke-width="1.5" fill="none" opacity="${opacity}"/>`;
+        }
+    }
+    
+    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+        <rect width="${width}" height="${height}" fill="white" opacity="0"/>
+        ${stitches}
+    </svg>`;
+}
+
+function renderSwatchComparison(gauge1H, gauge1V, gauge2H, gauge2V, mode = 'side-by-side') {
+    const sizeCm = 5;
+    
+    if (mode === 'overlay') {
+        const svg1 = renderSwatchSVG(gauge1H, gauge1V, sizeCm, '#8B5A6B', 0.8);
+        const svg2 = renderSwatchSVG(gauge2H, gauge2V, sizeCm, '#4A7C59', 0.8);
+        
+        return `
+            <div class="swatch-overlay">
+                <div class="swatch-layer">${svg1}</div>
+                <div class="swatch-layer">${svg2}</div>
+            </div>
+            <div class="swatch-legend">
+                <span><span class="legend-color" style="background: #8B5A6B"></span> Main fabric</span>
+                <span><span class="legend-color" style="background: #4A7C59"></span> Border</span>
+            </div>
+        `;
+    } else {
+        const svg1 = renderSwatchSVG(gauge1H, gauge1V, sizeCm, '#8B5A6B', 1);
+        const svg2 = renderSwatchSVG(gauge2H, gauge2V, sizeCm, '#4A7C59', 1);
+        
+        return `
+            <div class="swatch-side-by-side">
+                <div class="swatch-item">
+                    <div class="swatch-label">Main fabric</div>
+                    <div class="swatch-container">${svg1}</div>
+                    <div class="swatch-info">${gauge1H} st × ${gauge1V} rows / 10cm</div>
+                </div>
+                <div class="swatch-item">
+                    <div class="swatch-label">Border</div>
+                    <div class="swatch-container">${svg2}</div>
+                    <div class="swatch-info">${gauge2H} st × ${gauge2V} rows / 10cm</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
 function calculateAdjustedPickupRatio(patternStitches, patternRows, personalGaugeH, personalGaugeV, patternGaugeH, patternGaugeV) {
     if (!patternStitches || !patternRows || !personalGaugeH || !personalGaugeV || !patternGaugeH || !patternGaugeV) {
         return null;
@@ -280,6 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateBtn = document.getElementById('calculate');
     const resultSection = document.getElementById('result');
     const resultContent = document.getElementById('result-content');
+    const sizePersonalSwatch = document.getElementById('size-personal-swatch');
+    const sizePatternSwatch = document.getElementById('size-pattern-swatch');
     
     const pickupPersonalGaugeHInput = document.getElementById('pickup-personal-gauge-h');
     const pickupPersonalGaugeVInput = document.getElementById('pickup-personal-gauge-v');
@@ -291,6 +369,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculatePickupBtn = document.getElementById('calculate-pickup');
     const pickupResultSection = document.getElementById('pickup-result');
     const pickupResultContent = document.getElementById('pickup-result-content');
+    const pickupPersonalSwatch = document.getElementById('pickup-personal-swatch');
+    const pickupPatternSwatch = document.getElementById('pickup-pattern-swatch');
     
     const mainGaugeHInput = document.getElementById('main-gauge-h');
     const mainGaugeVInput = document.getElementById('main-gauge-v');
@@ -300,6 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateCombineBtn = document.getElementById('calculate-combine');
     const combineResultSection = document.getElementById('combine-result');
     const combineResultContent = document.getElementById('combine-result-content');
+    const mainSwatchPreview = document.getElementById('main-swatch-preview');
+    const borderSwatchPreview = document.getElementById('border-swatch-preview');
+    const swatchOverlayContainer = document.getElementById('swatch-overlay-container');
+    const swatchViewToggle = document.getElementById('swatch-view-toggle');
+    const viewToggleButtons = swatchViewToggle.querySelectorAll('button');
     
     const tabSize = document.getElementById('tab-size');
     const tabPickup = document.getElementById('tab-pickup');
@@ -313,6 +398,104 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateBtn.addEventListener('click', calculate);
     calculatePickupBtn.addEventListener('click', calculatePickup);
     calculateCombineBtn.addEventListener('click', calculateCombine);
+    
+    let currentViewMode = 'side-by-side';
+    
+    function updateSingleSwatchPreview(hInput, vInput, previewEl, color) {
+        const h = parseFloat(hInput.value);
+        const v = parseFloat(vInput.value);
+        
+        if (h > 0 && v > 0) {
+            previewEl.innerHTML = `
+                <div class="swatch-container">${renderSwatchSVG(h, v, 5, color, 1)}</div>
+                <div class="swatch-info">${h} st × ${v} rows</div>
+            `;
+        } else {
+            previewEl.innerHTML = '<div class="swatch-placeholder">Enter gauge to preview</div>';
+        }
+    }
+    
+    function updateSizeSwatches() {
+        updateSingleSwatchPreview(personalGaugeHInput, personalGaugeVInput, sizePersonalSwatch, '#8B5A6B');
+        updateSingleSwatchPreview(patternGaugeHInput, patternGaugeVInput, sizePatternSwatch, '#4A7C59');
+    }
+    
+    function updatePickupSwatches() {
+        updateSingleSwatchPreview(pickupPersonalGaugeHInput, pickupPersonalGaugeVInput, pickupPersonalSwatch, '#8B5A6B');
+        updateSingleSwatchPreview(pickupPatternGaugeHInput, pickupPatternGaugeVInput, pickupPatternSwatch, '#4A7C59');
+    }
+    
+    function updateCombineSwatchPreviews() {
+        const mainH = parseFloat(mainGaugeHInput.value);
+        const mainV = parseFloat(mainGaugeVInput.value);
+        const borderH = parseFloat(borderGaugeHInput.value);
+        const borderV = parseFloat(borderGaugeVInput.value);
+        
+        const hasMainGauge = mainH > 0 && mainV > 0;
+        const hasBorderGauge = borderH > 0 && borderV > 0;
+        
+        if (currentViewMode === 'side-by-side') {
+            swatchOverlayContainer.innerHTML = '';
+            swatchOverlayContainer.style.display = 'none';
+            
+            if (hasMainGauge) {
+                mainSwatchPreview.innerHTML = `
+                    <div class="swatch-container">${renderSwatchSVG(mainH, mainV, 5, '#8B5A6B', 1)}</div>
+                    <div class="swatch-info">${mainH} st × ${mainV} rows</div>
+                `;
+            } else {
+                mainSwatchPreview.innerHTML = '<div class="swatch-placeholder">Enter gauge to preview</div>';
+            }
+            
+            if (hasBorderGauge) {
+                borderSwatchPreview.innerHTML = `
+                    <div class="swatch-container">${renderSwatchSVG(borderH, borderV, 5, '#4A7C59', 1)}</div>
+                    <div class="swatch-info">${borderH} st × ${borderV} rows</div>
+                `;
+            } else {
+                borderSwatchPreview.innerHTML = '<div class="swatch-placeholder">Enter gauge to preview</div>';
+            }
+        } else {
+            mainSwatchPreview.innerHTML = '';
+            borderSwatchPreview.innerHTML = '';
+            
+            if (hasMainGauge && hasBorderGauge) {
+                swatchOverlayContainer.style.display = 'flex';
+                swatchOverlayContainer.innerHTML = renderSwatchComparison(mainH, mainV, borderH, borderV, 'overlay');
+            } else if (hasMainGauge || hasBorderGauge) {
+                swatchOverlayContainer.style.display = 'flex';
+                swatchOverlayContainer.innerHTML = '<div class="swatch-placeholder">Enter both gauges for overlay</div>';
+            } else {
+                swatchOverlayContainer.style.display = 'none';
+                swatchOverlayContainer.innerHTML = '';
+            }
+        }
+    }
+    
+    viewToggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewToggleButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentViewMode = btn.dataset.view;
+            updateCombineSwatchPreviews();
+        });
+    });
+    
+    [personalGaugeHInput, personalGaugeVInput, patternGaugeHInput, patternGaugeVInput].forEach(input => {
+        input.addEventListener('input', updateSizeSwatches);
+    });
+    
+    [pickupPersonalGaugeHInput, pickupPersonalGaugeVInput, pickupPatternGaugeHInput, pickupPatternGaugeVInput].forEach(input => {
+        input.addEventListener('input', updatePickupSwatches);
+    });
+    
+    [mainGaugeHInput, mainGaugeVInput, borderGaugeHInput, borderGaugeVInput].forEach(input => {
+        input.addEventListener('input', updateCombineSwatchPreviews);
+    });
+    
+    updateSizeSwatches();
+    updatePickupSwatches();
+    updateCombineSwatchPreviews();
     
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('keypress', (e) => {

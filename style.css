@@ -541,3 +541,173 @@ input::placeholder {
     color: var(--color-primary);
     margin-bottom: 12px;
 }
+
+/* Swatch Visualization */
+.swatch-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.swatch-section h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    margin-bottom: 12px;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.view-toggle button {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-light);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-toggle button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.view-toggle button.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* Side-by-side swatch layout */
+.swatch-side-by-side {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.swatch-item {
+    text-align: center;
+}
+
+.swatch-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.swatch-container {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 8px;
+    display: inline-block;
+}
+
+.swatch-container svg {
+    display: block;
+}
+
+.swatch-info {
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    margin-top: 8px;
+}
+
+/* Overlay swatch layout */
+.swatch-overlay {
+    position: relative;
+    display: inline-block;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 8px;
+}
+
+.swatch-layer {
+    display: block;
+}
+
+.swatch-layer:not(:first-child) {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+}
+
+.swatch-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    justify-content: center;
+}
+
+.swatch-legend > span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.swatch-comparison-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.swatch-preview {
+    margin-top: 12px;
+    text-align: center;
+    min-height: 180px;
+}
+
+.swatch-preview .swatch-container {
+    margin: 0 auto;
+}
+
+.swatch-preview .swatch-info {
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    margin-top: 6px;
+}
+
+.swatch-placeholder {
+    padding: 40px 16px;
+    color: var(--color-text-light);
+    font-size: 0.85rem;
+    font-style: italic;
+    background: var(--color-background);
+    border-radius: var(--radius);
+    border: 1px dashed var(--color-border);
+}
+
+.swatch-overlay-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--color-background);
+    border-radius: var(--radius);
+}
+
+.gauge-grid-with-swatch .gauge-column {
+    display: flex;
+    flex-direction: column;
+}
