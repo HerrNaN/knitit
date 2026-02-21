@@ -13,13 +13,16 @@
             <p class="tagline">Align your gauge with any pattern</p>
         </header>
 
+        <input type="radio" name="tab" id="tab-radio-size" class="tab-radio" checked>
+        <input type="radio" name="tab" id="tab-radio-pickup" class="tab-radio">
+        <input type="radio" name="tab" id="tab-radio-combine" class="tab-radio">
         <nav class="tabs">
-            <button class="tab active" data-tab="size">Size Calculator</button>
-            <button class="tab" data-tab="pickup">Pick Up Stitches</button>
-            <button class="tab" data-tab="combine">Combine Gauges</button>
+            <label class="tab" for="tab-radio-size">Size Calculator</label>
+            <label class="tab" for="tab-radio-pickup">Pick Up Stitches</label>
+            <label class="tab" for="tab-radio-combine">Combine Gauges</label>
         </nav>
 
-        <section class="calculator tab-content active" id="tab-size">
+        <section class="calculator tab-content" id="tab-size">
             <div class="input-group">
                 <h2>Gauge</h2>
                 <p class="hint">Enter your gauge and the pattern's gauge</p>
@@ -176,7 +179,7 @@
                 
                 <div class="swatch-overlay-container" id="swatch-overlay-container"></div>
                 
-                <div class="field" style="margin-top: 16px;">
+                <div class="field field-spaced">
                     <label for="main-stitches">Main fabric edge count</label>
                     <input type="number" id="main-stitches" placeholder="e.g., 80 stitches or rows" min="1" step="1">
                 </div>

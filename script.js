@@ -128,8 +128,8 @@ function renderSwatchComparison(gauge1H, gauge1V, gauge2H, gauge2V, mode = 'side
                 <div class="swatch-layer">${svg2}</div>
             </div>
             <div class="swatch-legend">
-                <span><span class="legend-color" style="background: #8B5A6B"></span> Main fabric (${gauge1H}\u00d7${gauge1V})</span>
-                <span><span class="legend-color" style="background: #4A7C59"></span> Border (${gauge2H}\u00d7${gauge2V})</span>
+                <span><span class="legend-color legend-color-main"></span> Main fabric (${gauge1H}\u00d7${gauge1V})</span>
+                <span><span class="legend-color legend-color-border"></span> Border (${gauge2H}\u00d7${gauge2V})</span>
             </div>
             <div class="swatch-info">${refCols} st \u00d7 ${refRows} rows</div>
         `;
@@ -380,18 +380,6 @@ function analyzeAllSizes(personalGauge, patternGauge, desiredMeasurement, sizes)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-        });
-    });
-    
     const personalGaugeHInput = document.getElementById('personal-gauge-h');
     const personalGaugeVInput = document.getElementById('personal-gauge-v');
     const patternGaugeHInput = document.getElementById('pattern-gauge-h');
@@ -482,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (currentViewMode === 'side-by-side') {
             swatchOverlayContainer.innerHTML = '';
-            swatchOverlayContainer.style.display = 'none';
+            swatchOverlayContainer.classList.remove('overlay-visible');
             
             if (hasMainGauge) {
                 mainSwatchPreview.innerHTML = `
@@ -506,13 +494,13 @@ document.addEventListener('DOMContentLoaded', () => {
             borderSwatchPreview.innerHTML = '';
             
             if (hasMainGauge && hasBorderGauge) {
-                swatchOverlayContainer.style.display = 'flex';
+                swatchOverlayContainer.classList.add('overlay-visible');
                 swatchOverlayContainer.innerHTML = renderSwatchComparison(mainH, mainV, borderH, borderV, 'overlay');
             } else if (hasMainGauge || hasBorderGauge) {
-                swatchOverlayContainer.style.display = 'flex';
+                swatchOverlayContainer.classList.add('overlay-visible');
                 swatchOverlayContainer.innerHTML = '<div class="swatch-placeholder">Enter both gauges for overlay</div>';
             } else {
-                swatchOverlayContainer.style.display = 'none';
+                swatchOverlayContainer.classList.remove('overlay-visible');
                 swatchOverlayContainer.innerHTML = '';
             }
         }

@@ -70,6 +70,7 @@ h1 {
     padding: 12px 16px;
     font-size: 0.85rem;
     font-weight: 600;
+    text-align: center;
     border: none;
     background: var(--color-background);
     color: var(--color-text-light);
@@ -83,18 +84,28 @@ h1 {
     color: var(--color-primary);
 }
 
-.tab.active {
+/* Hide radio inputs used for tab switching */
+.tab-radio {
+    display: none;
+}
+
+.tab-content {
+    display: none;
+}
+
+/* Active tab label styling via :checked radio */
+#tab-radio-size:checked ~ .tabs label[for="tab-radio-size"],
+#tab-radio-pickup:checked ~ .tabs label[for="tab-radio-pickup"],
+#tab-radio-combine:checked ~ .tabs label[for="tab-radio-combine"] {
     background: var(--color-surface);
     color: var(--color-primary);
     box-shadow: 0 -2px 0 var(--color-primary) inset;
 }
 
-.tab-content {
-    display: none;
-    border-radius: 0 0 var(--radius) var(--radius);
-}
-
-.tab-content.active {
+/* Show active tab content via :checked radio */
+#tab-radio-size:checked ~ #tab-size,
+#tab-radio-pickup:checked ~ #tab-pickup,
+#tab-radio-combine:checked ~ #tab-combine {
     display: block;
 }
 
@@ -661,6 +672,18 @@ input::placeholder {
     border-radius: 2px;
 }
 
+.legend-color-main {
+    background: #8B5A6B;
+}
+
+.legend-color-border {
+    background: #4A7C59;
+}
+
+.field-spaced {
+    margin-top: 16px;
+}
+
 .swatch-comparison-wrapper {
     display: flex;
     flex-direction: column;
@@ -701,6 +724,10 @@ input::placeholder {
     padding: 16px;
     background: var(--color-background);
     border-radius: var(--radius);
+}
+
+.swatch-overlay-container.overlay-visible {
+    display: flex;
 }
 
 .gauge-grid-with-swatch .gauge-column {
